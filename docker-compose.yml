@@ -1,0 +1,33 @@
+version: '3.9'
+services:
+  database:
+    image: postgres
+    container_name: api_db
+    env_file:
+      - .env
+    environment:
+      POSTGRES_DB: ${DATABASE_NAME:-arbat-dev}
+      POSTGRES_USER: ${DATABASE_USERNAME:-arbatuser}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD:-arbatpass}
+      PGDATA: '/var/lib/postgresql/data/pgdata'
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+    restart: unless-stopped
+
+  app:
+    container_name: api
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '5000:5000'
+    restart: unless-stopped
+    depends_on:
+      - database
+    env_file:
+      - .env
+
+volumes:
+  pgdata:
